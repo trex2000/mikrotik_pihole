@@ -1,0 +1,6 @@
+#6.5 Create ramdisk for the container
+#/disk add type=ramdisk ramdisk-size=1024M slot=ramdisk1
+#/disk format ramdisk1 label=pihole-ramdisk
+
+#use tmpfs as format does not run from script during startup
+/disk add type=tmpfs tmpfs-max-size=1G slot=ramdisk1

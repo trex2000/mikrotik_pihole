@@ -1,0 +1,57 @@
+{
+    :local cName "pihole"
+    :local logPrefix "Container Update: "
+    :local cImage "pihole/pihole"
+    :local cInterface "veth1"
+    :local cRootDir "ramdisk1/images/pihole"
+    :local cMounts "MOUNT_PIHOLE_PIHOLE,MOUNT_PIHOLE_DNSMASQD"
+    :local cEnv "ENV_PIHOLE"
+
+    /container
+
+    # --- 1. CHECK STATUS FIRST ---
+    # We check if the container is already running or starting
+    :if ([print count-only where name=$cName (running or starting)] > 0) do={
+        :log info "$($logPrefix)Container $cName is already active. No update needed. Exiting."
+    } else={
+        # --- 2. INSTALLATION LOGIC (Only runs if NOT active) ---
+        :log info "$($logPrefix)Starting update/install process..."
+
+        # Cleanup if it exists but is STOPPED
+        :if ([print count-only where name=$cName] > 0) do={
+            :log info "$($logPrefix)Removing old container..."
+            remove $cName
+            :while ([print count-only where name=$cName] > 0) do={ :delay 1 }
+            :delay 3s
+        }
+
+        # Add new container
+        add remote-image=$cImage interface=$cInterface root-dir=$cRootDir mounts=$cMounts envlist=$cEnv name=$cName
+        
+        # Wait for table registration
+        :while ([print count-only where name=$cName] = 0) do={ :delay 1 }
+
+        # Monitor Extraction using flags
+        :log info "$($logPrefix)Waiting for extraction..."
+        :local timer 0
+        :while ([print count-only where name=$cName extracting] = 0 && $timer < 300) do={
+            :delay 1
+            :set timer ($timer + 1)
+        }
+
+        :if ($timer < 300) do={
+            # Wait for extraction to finish
+            :while ([print count-only where name=$cName extracting] > 0) do={ :delay 1 }
+            
+            # Final wait for 'stopped' flag to be true before starting
+            :while ([print count-only where name=$cName stopped] = 0) do={ :delay 1 }
+
+            :log info "$($logPrefix)Starting container..."
+            :delay 2s
+            start $cName
+            :log info "$($logPrefix)Process complete."
+        } else={
+            :log error "$($logPrefix)Extraction timed out."
+        }
+    }
+}
