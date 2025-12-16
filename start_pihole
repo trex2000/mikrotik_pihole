@@ -52,8 +52,8 @@
             :log info "$($logPrefix)Process complete."
             :log info "Adding redirect firewall rules:"
             /ip firewall nat
-			add action=dst-nat chain=dstnat dst-port=53 protocol=udp to-addresses=192.168.88.1 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"
-			add action=dst-nat chain=dstnat dst-port=53 protocol=tcp to-addresses=192.168.88.1 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"
+			add action=dst-nat chain=dstnat dst-address=192.168.88.1 dst-port=53 protocol=udp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"
+			add action=dst-nat chain=dstnat dst-address=192.168.88.1 dst-port=53 protocol=tcp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"	
         } else={
             :log error "$($logPrefix)Extraction timed out."
         }
