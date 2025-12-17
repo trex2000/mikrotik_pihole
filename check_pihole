@@ -1,0 +1,24 @@
+:global piholeReverted
+:local piholeIP "172.17.0.2"
+:local testDomain "google.com"
+:local status "unknown"
+
+# If it's already reverted, exit immediately
+:if ($piholeReverted = true) do={ 
+    :exit
+}
+
+# Perform the DNS check
+:do {
+    :resolve $testDomain server=$piholeIP
+    :set status "up"
+} on-error={
+    :set status "down"
+}
+
+# Trigger only if down
+:if ($status = "down") do={
+    :log warning "Pi-hole failed. Reverting NAT. Watchdog will now stay idle."
+    /system script run manual_clear_dns_redirect_to_pihole
+    :set piholeReverted true
+}
