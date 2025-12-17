@@ -114,3 +114,14 @@ Run this script when the system starts up from the Scheduler, with "Start time" 
 ```
 /ip firewall nat remove [find where comment="TEMP_DNS_REDIRECT_TO_PIHOLE"]
 ```
+
+# Monitoring Pihole
+The script check_pihole will test if the pihole's DNS server can resolve google.com. If not, it will call the 
+```
+manual_clear_dns_redirect_to_pihole 
+```
+script that will delete the temporary redirect rules that were added when the Container was started. 
+The content of the script shall be the following:
+```
+/ip firewall nat remove [find where comment="TEMP_DNS_REDIRECT_TO_PIHOLE"]
+```
