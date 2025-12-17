@@ -5,12 +5,13 @@ Script is based on:
 https://help.mikrotik.com/docs/spaces/ROS/pages/84901929/Container
 
 # Prerequisites:
-# 1. Enable Container mode and follow the instructions the command gives you (read more about Device-mode). You will need to confirm the device-mode with a press of the reset button, or a cold reboot (if using Containers on x86):
+# 1. Enable Container mode and follow the instructions the command gives you (read more about Device-mode). 
+You will need to confirm the device-mode with a press of the reset button, or a cold reboot (if using Containers on x86):
 /system/device-mode/update container=yes 
 
 # 2. Create a new veth interface and assign an IP address in a range that is unique in your network:
-# The following configuration is equivalent to "bridge" networking mode in other Container engines such as Docker. It is possible to create a "host" equivalent configuration as well.
-# One veth interface can be used for many Containers. You can create multiple veth interfaces to create isolated networks for different Containers.
+The following configuration is equivalent to "bridge" networking mode in other Container engines such as Docker. It is possible to create a "host" equivalent configuration as well.
+One veth interface can be used for many Containers. You can create multiple veth interfaces to create isolated networks for different Containers.
 /interface/veth/add name=veth1 address=172.17.0.2/24 gateway=172.17.0.1
 
 # 3. Create a new bridge that is going to be used for your Containers and assign the same IP address that was used for the veth interface's gateway:
