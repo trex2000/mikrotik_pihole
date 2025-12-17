@@ -32,6 +32,8 @@ add action=dst-nat chain=dstnat dst-address=192.168.88.1 dst-port=80 protocol=tc
 /container/envs/add list=ENV_PIHOLE key=TZ value="Europe/Bucharest"
 /container/envs/add list=ENV_PIHOLE key=FTLCONF_webserver_api_password value="YOUR_VERY_SECURE_PASSWORD"
 /container/envs/add list=ENV_PIHOLE key=DNSMASQ_USER value="root"
+/container/envs/add list=ENV_PIHOLE key=PIHOLE_DNS_ value="8.8.8.8;8.8.4.4;2001:4860:4860::8888;2001:4860:4860::8844"
+/container/envs/add list=ENV_PIHOLE key=DNSMASQ_LISTENING value="all"
 
 # 8 Create ramdisk for the container
 /disk add type=tmpfs tmpfs-max-size=1G slot=ramdisk1
@@ -69,7 +71,7 @@ add action=dst-nat chain=dstnat dst-address=192.168.88.1 dst-port=80 protocol=tc
 /container/add remote-image=pihole/pihole interface=veth1 root-dir=ramdisk1/images/pihole mounts=MOUNT_PIHOLE_PIHOLE,MOUNT_PIHOLE_DNSMASQD envlist=ENV_PIHOLE name=pihole
 
 # 13. Start the container (Note: this is automated with the start_pihole script, see below)
-
+/container start pihole
 
 # Information regarding deploying the script:
 
