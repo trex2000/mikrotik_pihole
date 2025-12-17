@@ -1,0 +1,1 @@
+/ip firewall nat remove [find where comment="TEMP_DNS_REDIRECT_TO_PIHOLE"]
