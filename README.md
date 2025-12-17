@@ -125,3 +125,4 @@ The content of the script shall be the following:
 ```
 /ip firewall nat remove [find where comment="TEMP_DNS_REDIRECT_TO_PIHOLE"]
 ```
+The script check_pihole shall be called periodically (every 5 min for example) via a Scheduler job to make sure it will monitor the DNS server periodically.
