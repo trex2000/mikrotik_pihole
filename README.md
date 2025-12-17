@@ -33,7 +33,9 @@ add action=dst-nat chain=dstnat dst-address=192.168.88.1 dst-port=80 protocol=tc
 /container/envs/add list=ENV_PIHOLE key=FTLCONF_webserver_api_password value="YOUR_VERY_SECURE_PASSWORD"
 /container/envs/add list=ENV_PIHOLE key=DNSMASQ_USER value="root"
 /container/envs/add list=ENV_PIHOLE key=PIHOLE_DNS_ value="8.8.8.8;8.8.4.4;2001:4860:4860::8888;2001:4860:4860::8844"
+#allow answer from all ip ranges
 /container/envs/add list=ENV_PIHOLE key=DNSMASQ_LISTENING value="all"
+/container/envs/add list=ENV_PIHOLE key=FTLCONF_dns_listeningMode value="all"
 
 # 8 Create ramdisk for the container
 /disk add type=tmpfs tmpfs-max-size=1G slot=ramdisk1
