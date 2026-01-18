@@ -3,22 +3,26 @@
 :local testDomain "google.com"
 :local status "unknown"
 
-# If it's already reverted, exit immediately
-:if ($piholeReverted = true) do={ 
-    :exit
-}
+# Use logical nesting instead of :exit
+# We check if it is NOT true (handles both 'false' and 'nil')
+:if ($piholeReverted != true) do={
 
-# Perform the DNS check
-:do {
-    :resolve $testDomain server=$piholeIP
-    :set status "up"
-} on-error={
-    :set status "down"
-}
+    # Perform the DNS check
+    :do {
+        # Timeout is important so the script doesn't hang forever
+        :resolve $testDomain server=$piholeIP
+        :set status "up"
+    } on-error={
+        :set status "down"
+    }
 
-# Trigger only if down
-:if ($status = "down") do={
-    :log warning "Pi-hole failed. Reverting NAT. Watchdog will now stay idle."
-    /system script run manual_clear_dns_redirect_to_pihole
-    :set piholeReverted true
+    # Trigger only if down
+    :if ($status = "down") do={
+        :log warning "Pi-hole failed. Reverting NAT. Watchdog will now stay idle."
+        
+        # Ensure this script name is exactly correct in /system script
+        /system script run manual_clear_dns_redirect_to_pihole
+        
+        :set piholeReverted true
+    }
 }

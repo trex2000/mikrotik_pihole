@@ -1,6 +1,6 @@
 {
     :local cName "pihole"
-    :local logPrefix "Container Update: "
+    :local logPrefix "Container Update:"
     :local cImage "pihole/pihole"
     :local cInterface "veth1"
     :local cRootDir "ramdisk1/images/pihole"
@@ -26,8 +26,9 @@
         }
 
         # Add new container
-        add remote-image=$cImage interface=$cInterface root-dir=$cRootDir mounts=$cMounts envlist=$cEnv name=$cName
-        
+		add remote-image=$cImage mount=$cMounts interface=$cInterface root-dir=$cRootDir envlist=$cEnv name=$cName
+	# add remote-image="pihole/pihole" interface="veth1" root-dir="ramdisk1/images/pihole" mount="MOUNT_PIHOLE_PIHOLE,MOUNT_PIHOLE_DNSMASQD" envlist="ENV_PIHOLE" name="pihole"
+
         # Wait for table registration
         :while ([print count-only where name=$cName] = 0) do={ :delay 1 }
 
@@ -42,7 +43,6 @@
         :if ($timer < 300) do={
             # Wait for extraction to finish
             :while ([print count-only where name=$cName extracting] > 0) do={ :delay 1 }
-            
             # Final wait for 'stopped' flag to be true before starting
             :while ([print count-only where name=$cName stopped] = 0) do={ :delay 1 }
 
@@ -60,3 +60,4 @@
         }
     }
 }
+
