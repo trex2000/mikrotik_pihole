@@ -35,28 +35,32 @@
         # Monitor Extraction using flags
         :log info "$($logPrefix)Waiting for extraction..."
         :local timer 0
-        :while ([print count-only where name=$cName extracting] = 0 && $timer < 300) do={
+        :while ([print count-only where name=$cName stopped] = 0 && $timer < 300) do={
             :delay 1
             :set timer ($timer + 1)
         }
-
+		# if script exited before timer expired
         :if ($timer < 300) do={
-            # Wait for extraction to finish
-            :while ([print count-only where name=$cName extracting] > 0) do={ :delay 1 }
-            # Final wait for 'stopped' flag to be true before starting
-            :while ([print count-only where name=$cName stopped] = 0) do={ :delay 1 }
-
-            :log info "$($logPrefix)Starting container..."
-            :delay 2s
-            start $cName
-            :log info "$($logPrefix)Process complete."
-			/ip firewall nat
-			add action=dst-nat chain=dstnat src-address=!192.168.88.1 dst-address=192.168.88.1 dst-port=53 protocol=udp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"
-			add action=dst-nat chain=dstnat src-address=!192.168.88.1 dst-address=192.168.88.1 dst-port=53 protocol=tcp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"				
-			add action=dst-nat chain=dstnat src-address=!192.168.1.1 dst-address=192.168.1.1 dst-port=53 protocol=udp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"
-			add action=dst-nat chain=dstnat src-address=!192.168.1.1 dst-address=192.168.1.1 dst-port=53 protocol=tcp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"							
+            #stop timer
+			:set timer 300
+			# Final check  for 'stopped' flag to be true before starting
+            :if ([print count-only where name=$cName stopped] = 1) do={
+				:log info "$($logPrefix) Container extracted succesfully. Starting container..."
+				:delay 2s
+				start $cName
+				:log info "$($logPrefix)Process complete."
+				/ip firewall nat
+				add action=dst-nat chain=dstnat src-address=!192.168.88.1 dst-address=192.168.88.1 dst-port=53 protocol=udp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"
+				add action=dst-nat chain=dstnat src-address=!192.168.88.1 dst-address=192.168.88.1 dst-port=53 protocol=tcp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"				
+				add action=dst-nat chain=dstnat src-address=!192.168.1.1 dst-address=192.168.1.1 dst-port=53 protocol=udp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"
+				add action=dst-nat chain=dstnat src-address=!192.168.1.1 dst-address=192.168.1.1 dst-port=53 protocol=tcp to-addresses=172.17.0.2 to-ports=53 comment="TEMP_DNS_REDIRECT_TO_PIHOLE"
+			} else={
+				:log error "$($logPrefix) Pihole Status not in stopped state"
+			   }		
         } else={
-            :log error "$($logPrefix)Extraction timed out."
+				:log error "$($logPrefix)Extraction timed out."
+			}
+            
         }
     }
 }
