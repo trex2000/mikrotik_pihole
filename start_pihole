@@ -23,6 +23,7 @@
             remove $cName
             :while ([print count-only where name=$cName] > 0) do={ :delay 1 }
             :delay 3s
+			/ip firewall nat remove [find where comment="TEMP_DNS_REDIRECT_TO_PIHOLE"]
         }
 
         # Add new container
